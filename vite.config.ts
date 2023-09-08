@@ -36,9 +36,34 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8080,
       strictPort: true,
+      proxy: {
+        '/ams': API_PROXY,
+        '/beta/ams': API_PROXY,
+        '/dashboard': API_PROXY,
+        '/iam': API_PROXY,
+        '/xds': {
+          secure: false,
+          changeOrigin: true,
+          target:
+            'https://3ey77fak3zwfxs3wah6zav3axi0sbsik.lambda-url.eu-central-1.on.aws/',
+        },
+      },
     },
     optimizeDeps: {
       include: ['scrivito'],
     },
   }
 })
+
+const API_PROXY = {
+  secure: false,
+  changeOrigin: true,
+  target: 'https://api.justrelate.com/',
+  onProxyReq(request) {
+    request.setHeader('X-JR-API-Location', `http://localhost:${8080}`)
+    request.setHeader(
+      'X-JR-Treat-Localhost-Like',
+      'https://console.justrelate.com',
+    )
+  },
+}
