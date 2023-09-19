@@ -1,5 +1,6 @@
-import { ContentTag, ImageTag, provideComponent } from 'scrivito'
+import { load, ContentTag, ImageTag, provideComponent } from 'scrivito'
 import { Product, isProduct } from './ProductObjClass'
+import { CartItem } from '../../Data/CartItem/CartItem'
 import {
   isProductParameterWidget,
   toPlainParameter,
@@ -11,6 +12,30 @@ provideComponent(Product, ({ page }) => {
     .get('parameters')
     .filter(isProductParameterWidget)
     .map(toPlainParameter)
+
+  function addToCart() {
+    // @ts-expect-error until out of private beta
+    CartItem.create({ productId: page.id() })
+  }
+
+  async function removeFromCart() {
+    const items = await load(() =>
+      // @ts-expect-error until out of private beta
+      CartItem.all()
+        .transform({ filters: { productId: page.id() } })
+        .take(),
+    )
+
+    items[0]?.destroy()
+  }
+
+  /** check if a given product has been placed in the cart */
+  function isInCart(): boolean {
+    // @ts-expect-error until out of private beta
+    return !CartItem.all()
+      .transform({ filters: { productId: page.id() } })
+      .isEmpty()
+  }
 
   return (
     <>
@@ -44,6 +69,25 @@ provideComponent(Product, ({ page }) => {
                     className="mb-1 text-muted text-uppercase"
                     tag="p"
                   />
+
+                  {isInCart() ? (
+                    <>
+                      <span>Added to Cart!</span>
+                      <div
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={removeFromCart}
+                      >
+                        Remove
+                      </div>
+                    </>
+                  ) : (
+                    <div
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={addToCart}
+                    >
+                      Add To Cart
+                    </div>
+                  )}
 
                   <ul className="nav nav-pills">
                     <li className="nav-item">
