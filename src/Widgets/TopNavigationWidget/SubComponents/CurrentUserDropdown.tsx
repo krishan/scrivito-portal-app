@@ -8,6 +8,12 @@ import {
   LinkTag,
   logout,
   urlFor,
+  Obj,
+  unstable_isInOfflineMode,
+  unstable_enterOfflineMode,
+  unstable_leaveOfflineMode,
+  Binary,
+  load,
 } from 'scrivito'
 import { TopNavigationWidgetInstance } from '../TopNavigationWidgetClass'
 import NavDropdown from 'react-bootstrap/NavDropdown'
@@ -71,10 +77,54 @@ export const CurrentUserDropdown = connect(function CurrentUserDropdown({
         </>
       ) : null}
 
+      <NavDropdown.Item
+        eventKey="MetaNavigation-Offline"
+        key="MetaNavigation-Offline"
+        onClick={async () => {
+          if (unstable_isInOfflineMode()) {
+            unstable_leaveOfflineMode()
+            return
+          }
+
+          await preloadForOffline()
+
+          unstable_enterOfflineMode()
+        }}
+      >
+        {unstable_isInOfflineMode() ? 'Go Online' : 'Go Offline'}
+      </NavDropdown.Item>
+      <li>
+        <hr className="dropdown-divider" />
+      </li>
+
       <LogOutButton root={root} />
     </NavDropdown>
   )
 })
+
+async function preloadForOffline() {
+  const allObjs = await load(() => Obj.onAllSites().all().take())
+
+  await Promise.all(
+    allObjs.map(async (obj) =>
+      load(() => {
+        // preload widgets
+        obj.widgets()
+
+        const blob = obj.get('blob') as Binary | null
+        if (blob) {
+          // preload binary metadata
+          obj.contentType()
+          // preload URL of scaled-down image
+          blob.optimizeFor({ width: 128 }).url()
+          // preload URL of high-res image
+          const highResWidth = screen.width * devicePixelRatio
+          blob.optimizeFor({ width: highResWidth }).url()
+        }
+      }),
+    ),
+  )
+}
 
 const LogOutButton = connect(function LogOutButton({
   root,

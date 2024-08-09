@@ -1,4 +1,4 @@
-import { configure } from 'scrivito'
+import { configure, unstable_enableOfflineStore } from 'scrivito'
 import { baseUrlForSite, siteForUrl } from './scrivitoSites'
 import { scrivitoTenantId } from './scrivitoTenants'
 
@@ -16,6 +16,7 @@ export function configureScrivito() {
     // @ts-expect-error // TODO: Remove later on
     unstable: {
       assetUrlBase: 'http://localhost:8091',
+      allowOfflineMode: true,
       trustedUiOrigins: [
         'http://localhost:8090',
         'https://*.scrivito-ui.pages.dev',
@@ -23,3 +24,5 @@ export function configureScrivito() {
     },
   })
 }
+
+unstable_enableOfflineStore()
