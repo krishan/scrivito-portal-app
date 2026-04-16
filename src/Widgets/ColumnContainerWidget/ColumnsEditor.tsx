@@ -15,6 +15,7 @@ import {
   isColumnContainerWidgetInstance,
   ColumnContainerWidgetInstance,
 } from './ColumnContainerWidgetClass'
+import { inferredColSizes } from './inferredColSizes'
 import './ColumnsEditor.scss'
 import { Component, createRef, useMemo } from 'react'
 
@@ -481,9 +482,9 @@ class GridLayoutEditor extends Component<
 }
 
 function gridOfWidget(containerWidget: ColumnContainerWidgetInstance) {
-  return containerWidget
-    .get('columns')
-    .map((column) => (column as ColumnWidgetInstance).get('colSize') || 1)
+  return inferredColSizes(
+    containerWidget.get('columns') as ColumnWidgetInstance[],
+  )
 }
 
 function growOfWidget(containerWidget: ColumnContainerWidgetInstance) {

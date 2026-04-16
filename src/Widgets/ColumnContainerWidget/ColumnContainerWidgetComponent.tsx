@@ -1,6 +1,7 @@
 import { provideComponent, ContentTag, connect } from 'scrivito'
 import { ColumnContainerWidget } from './ColumnContainerWidgetClass'
 import { ColumnWidgetInstance } from '../ColumnWidget/ColumnWidgetClass'
+import { inferredColSizes } from './inferredColSizes'
 import './ColumnContainerWidget.scss'
 
 provideComponent(ColumnContainerWidget, ({ widget }) => {
@@ -23,13 +24,16 @@ provideComponent(ColumnContainerWidget, ({ widget }) => {
     if (widget.get('disableGutters')) classNames.push('g-0')
   }
 
+  const colSizes = isFlex ? [] : inferredColSizes(columns as ColumnWidgetInstance[])
+
   return (
     <div className={classNames.join(' ')}>
-      {columns.map((columnWidget: ColumnWidgetInstance) => {
+      {columns.map((columnWidget: ColumnWidgetInstance, index: number) => {
         return (
           <Column
             key={columnWidget.id()}
             columnWidget={columnWidget}
+            colSize={isFlex ? 0 : colSizes[index] ?? 1}
             isFlex={isFlex}
             isResponsive={isResponsive}
             isStretch={alignment === 'stretch'}
@@ -42,11 +46,13 @@ provideComponent(ColumnContainerWidget, ({ widget }) => {
 
 const Column = connect(function Column({
   columnWidget,
+  colSize,
   isFlex,
   isResponsive,
   isStretch,
 }: {
   columnWidget: ColumnWidgetInstance
+  colSize: number
   isFlex: boolean
   isResponsive: boolean
   isStretch: boolean
@@ -62,7 +68,6 @@ const Column = connect(function Column({
       classNames.push(isResponsive ? 'd-md-flex' : 'd-flex')
     }
   } else {
-    const colSize = columnWidget.get('colSize') || 1
     classNames.push(isResponsive ? `col-md-${colSize}` : `col-${colSize}`)
   }
 
