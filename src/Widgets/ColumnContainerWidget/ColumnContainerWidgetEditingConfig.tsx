@@ -30,24 +30,11 @@ provideEditingConfig(ColumnContainerWidget, {
     columns: {
       title: 'Layout (desktop)',
     },
-    layoutMode: {
-      title: 'Display mode',
-      values: [
-        { value: 'grid', title: 'Grid' },
-        { value: 'flex', title: 'Flex' },
-      ],
-      description: 'Default: Grid',
-    },
-    disableGutters: {
-      title: 'Show gutters?',
-      description: 'Gutters are the spaces between columns in a layout.',
-    },
     disableResponsiveAdaption: {
       title: 'Responsive adaption?',
     },
   },
   properties: [
-    'layoutMode',
     [
       'columns',
       {
@@ -108,28 +95,13 @@ provideEditingConfig(ColumnContainerWidget, {
         ),
       },
     ],
-    [
-      'disableGutters',
-      {
-        component: ({ widget }: { widget: Widget }) => (
-          <InvertedBooleanEditor
-            attributeValue={widget.get('disableGutters') === true}
-            readOnly={!canEdit(widget.obj()) || isComparisonActive()}
-            updateAttributeValue={(value) =>
-              widget.update({ disableGutters: value })
-            }
-          />
-        ),
-      },
-    ],
   ],
   initialContent: {
     columns: [
-      new ColumnWidget({ colSize: 4, flexGrow: true }),
-      new ColumnWidget({ colSize: 4, flexGrow: true }),
-      new ColumnWidget({ colSize: 4, flexGrow: true }),
+      new ColumnWidget({ colSize: 4 }),
+      new ColumnWidget({ colSize: 4 }),
+      new ColumnWidget({ colSize: 4 }),
     ],
     alignment: 'start',
-    layoutMode: 'grid',
   },
 })
